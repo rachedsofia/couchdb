@@ -1,5 +1,6 @@
 package unrn.couch.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +35,14 @@ public class ComprasController implements ComprasContract{
     public ResponseEntity<List<Cliente>> listarClientes() {
         return ResponseEntity.ok(clienteService.obtenerTodosLosClientes());
     }
+    @GetMapping("/listarLosClientes")
+    public ResponseEntity<List<Cliente>> listarLosClientes() throws JsonProcessingException {
+        return ResponseEntity.ok(clienteService.obtenerClientes());
+    }
 
     @PostMapping("/crear")
-    public void registrarCompra(@RequestBody Compras CompraRequest) {
-          comprasService.registrarCompra(CompraRequest.getId_cliente(), CompraRequest.getFechaDeCompra());
+    public ResponseEntity<Compras> registrarCompra(@RequestBody Compras CompraRequest) {
+         return  ResponseEntity.ok(comprasService.registrarCompra(CompraRequest.getId_cliente(), CompraRequest.getFechaDeCompra()));
     }
 
     @GetMapping("/obtenerCliente/{id}")
@@ -45,18 +50,13 @@ public class ComprasController implements ComprasContract{
          return comprasService.obtenerCompraPorId(id);
     }
 
-    @GetMapping("/obtenerCompraCliente/{idCliente}")
-    public List<Compras> obtenerComprasPorCliente(@PathVariable String idCliente) {
-        return comprasService.obtenerComprasPorCliente(idCliente);
-    }
-
     @GetMapping("/usuariosMasComprasUltimoMes")
-    public List<Compras> obtenerUsuariosMasComprasUltimoMes() {
+    public List<Compras> obtenerUsuariosMasComprasUltimoMes()  throws JsonProcessingException{
         return comprasService.obtenerUsuariosMasComprasUltimoMes();
     }
 
     @GetMapping("/ultimasCompras")
-    public List<Compras> obtenerUltimasCompras() {
+    public List<Compras> obtenerUltimasCompras() throws JsonProcessingException {
         return comprasService.obtenerUltimasCompras();
     }
 

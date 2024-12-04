@@ -1,5 +1,6 @@
 package unrn.couch.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import unrn.couch.models.Compras;
@@ -13,9 +14,10 @@ public class ComprasService {
     @Autowired
     private ComprasRepository comprasRepository;
 
-    public void registrarCompra(String idCliente, String fechaDeCompra) {
+    public Compras registrarCompra(String idCliente, String fechaDeCompra) {
         Compras nuevaCompra = new Compras(idCliente, fechaDeCompra);
         comprasRepository.add(nuevaCompra);
+        return nuevaCompra;
     }
 
     public Compras obtenerCompraPorId(String id) {
@@ -26,12 +28,12 @@ public class ComprasService {
         return comprasRepository.obtenerComprasPorCliente(idCliente);
     }
 
-    public List<Compras> obtenerUsuariosMasComprasUltimoMes() {
+    public List<Compras> obtenerUsuariosMasComprasUltimoMes()throws JsonProcessingException {
         return comprasRepository.obtenerUsuariosMasComprasUltimoMes();
     }
 
-    public List<Compras> obtenerUltimasCompras() {
-        return comprasRepository.obtenerUltimasCompras();
+    public List<Compras> obtenerUltimasCompras() throws JsonProcessingException {
+        return comprasRepository.obtenerUltimasCompras() ;
     }
 }
 

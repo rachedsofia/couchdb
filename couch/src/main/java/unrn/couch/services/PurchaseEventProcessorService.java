@@ -20,11 +20,9 @@ public class PurchaseEventProcessorService {
             String detalleCompra = purchaseEvent.getDetalleCompra();
             String fechaCompra = detalleCompra.split(",")[0].split(":")[1].trim();
             System.out.printf(fechaCompra);
+            Compras compras = new Compras(purchaseEvent.getIdCliente(), fechaCompra);
 
-            comprasRepository.add(Compras.builder()
-                    .id_cliente(purchaseEvent.getIdCliente())
-                    .fechaDeCompra(fechaCompra)
-                    .build());
+            comprasRepository.add(compras);
 
         } catch (Exception e){
             throw new EventProcessingException("Error al procesar el evento: " + e.getMessage(), e);

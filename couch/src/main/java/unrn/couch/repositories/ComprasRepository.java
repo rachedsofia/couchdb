@@ -1,11 +1,23 @@
 package unrn.couch.repositories;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
+import org.ektorp.ViewResult;
+import org.ektorp.http.RestTemplate;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import unrn.couch.models.Compras;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 @Repository
 public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
@@ -24,123 +36,62 @@ public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
 
         return db.queryView(query, Compras.class);
     }
-    public List<Compras> obtenerUsuariosMasComprasUltimoMes() {
-        ViewQuery query = new ViewQuery()
-                .designDocId("_design/Compras\\n")
-                .viewName("compras_ultimo_mes")
-                .reduce(true)
-                .group(true)
-                .descending(true)
-                .limit(2) // Limita a los dos usuarios con más compras
-                .includeDocs(true);
+    public List<Compras> obtenerUsuariosMasComprasUltimoMes() throws JsonProcessingException {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -1);
+        Date fechaLimite = cal.getTime();
 
-        return db.queryView(query, Compras.class);
-    }
+        // Convertimos la fecha límite a formato ISO
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        String fechaLimiteIso = sdf.format(fechaLimite);
 
-    public List<Compras> obtenerUltimasCompras() {
         ViewQuery query = new ViewQuery()
                 .designDocId("_design/Compras")
+                .viewName("compras_por_cliente")
+                .startKey(fechaLimiteIso)
+                .includeDocs(true)
+                .limit(2);
+
+        ViewResult result = db.queryView(query);
+        List<Compras> compras = new ArrayList<>();
+        for (ViewResult.Row row : result.getRows()) {
+            // Obtener el documento como JsonNode
+            JsonNode jsonNode = row.getDocAsNode();
+
+            // Convertir el JsonNode a objeto Compras
+            ObjectMapper mapper = new ObjectMapper();
+            Compras compra = mapper.treeToValue(jsonNode, Compras.class);
+
+            compras.add(compra);
+        }
+        return compras;
+    }
+
+
+
+    public List<Compras> obtenerUltimasCompras() throws JsonProcessingException {
+        ViewQuery query = new ViewQuery()
+                .designDocId("_design/ultimasCompras")
                 .viewName("ultimas_compras")
-                .descending(true)
-                .limit(3) // Limita a 3 las últimas compras
+                .limit(3)
                 .includeDocs(true);
 
-        return db.queryView(query, Compras.class);
+        ViewResult result = db.queryView(query);
+        List<Compras> compras = new ArrayList<>();
+        for (ViewResult.Row row : result.getRows()) {
+            // Obtener el documento como JsonNode
+            JsonNode jsonNode = row.getDocAsNode();
+
+            // Convertir el JsonNode a objeto Compras
+            ObjectMapper mapper = new ObjectMapper();
+            Compras compra = mapper.treeToValue(jsonNode, Compras.class);
+
+            compras.add(compra);
+        }
+        return compras;
     }
 
-}
-/*
-    @Autowired
-    private CouchDbConnector couchDbConnector;
 
-    public void save(Compras compra) {
-        couchDbConnector.create(compra);
-    }
-
-    public List<Compras> obtenerUltimasComprasPorCliente(String clienteId) {
-        return couchDbConnector.queryView(
-                new ViewQuery()
-                        .designDocId("_design/ventas")
-                        .viewName("ultimas_compras_por_cliente")
-                        .key(clienteId)
-                        .descending(true)
-                        .limit(3),
-                Compras.class
-        );
-    }
-
-    public List<ClienteDTO> obtenerClientesConMasComprasUltimoMes() {
-        List<ClienteDTO> clientes = couchDbConnector.queryView(
-                new ViewQuery()
-                        .designDocId("_design/ventas")
-                        .viewName("clientes_con_mas_compras")
-                        .group(true)
-                        .reduce(true),
-                ClienteDTO.class
-        );
-        return clientes.stream()
-                .sorted((c1, c2) -> Integer.compare(c2.getCantidadCompras(), c1.getCantidadCompras()))
-                .limit(2)
-                .toList();
-    }
 }
 
 
-/*
-@Repository
-public class ComprasRepository {
-
-    @Autowired
-    private CouchDbConnector couchDbConnector;
-
-        public List<Compras> obtenerUltimasComprasPorCliente(String clienteId) {
-            List<Compras> compras = new ArrayList<>();
-            try {
-                ViewQuery query = new ViewQuery()
-                        .designDocId("compras")
-                        .viewName("by_id_cliente")
-                        .key(clienteId)
-                        .includeDocs(true)
-                        .limit(3);
-
-                ViewResult result = couchDbConnector.queryView(query);
-
-                // Mapear los resultados de la vista
-                for (ViewResult.Row row : result.getRows()) {
-                    Compras compra = row.getDoc(Compras.class);
-                    compras.add(compra);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error al obtener las últimas compras", e);
-            }
-            return compras;
-        }
-
-        public List<ClienteDTO> obtenerClientesConMasComprasUltimoMes() {
-            List<ClienteDTO> clientes = new ArrayList<>();
-            try {
-                ViewQuery query = new ViewQuery()
-                        .designDocId("compras")
-                        .viewName("by_compras_ultimo_mes")
-                        .reduce(true)
-                        .group(true);
-
-                ViewResult result = couchDbConnector.queryView(query);
-
-                // Mapear los resultados de la vista
-                for (ViewResult.Row row : result.getRows()) {
-                    ClienteDTO clienteDTO = new ClienteDTO();
-                    clienteDTO.setId(row.getKey());
-                    clienteDTO.setCantidadCompras(Integer.parseInt(row.getValue()));
-                    clientes.add(clienteDTO);
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("Error al obtener los clientes con más compras", e);
-            }
-            return clientes;
-        }
-    }
-*/
