@@ -13,10 +13,13 @@ public class CouchDbConfig {
     @Bean
     public CouchDbConnector couchDbConnector() {
         try {
+
             HttpClient httpClient = new StdHttpClient.Builder()
-                    .url("http://127.0.0.1:5984") // Cambia esto por la URL de tu instancia de CouchDB
-                    .username("admin")           // Usuario de CouchDB
-                    .password("admin")           // Contraseña de CouchDB
+                    //.url("http://127.0.0.1:5984")
+                    .host("localhost")
+                    .port(5984)
+                    .username("admin")           // Usuario
+                    .password("admin")           // Contraseña
                     .build();
 
             CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);

@@ -23,10 +23,10 @@ public class ComprasService {
     public Compras obtenerCompraPorId(String id) {
         return comprasRepository.get(id);
     }
-
+/*
     public List<Compras> obtenerComprasPorCliente(String idCliente) {
         return comprasRepository.obtenerComprasPorCliente(idCliente);
-    }
+    }*/
 
     public List<Compras> obtenerUsuariosMasComprasUltimoMes()throws JsonProcessingException {
         return comprasRepository.obtenerUsuariosMasComprasUltimoMes();

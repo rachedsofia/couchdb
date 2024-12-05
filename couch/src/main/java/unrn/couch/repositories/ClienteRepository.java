@@ -1,5 +1,4 @@
 package unrn.couch.repositories;
-import ch.qos.logback.core.net.server.Client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +9,6 @@ import org.ektorp.support.CouchDbRepositorySupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import unrn.couch.models.Cliente;
-import unrn.couch.models.Compras;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +17,7 @@ import java.util.List;
 public class ClienteRepository extends CouchDbRepositorySupport<Cliente> {
     @Autowired
     private CouchDbConnector couchDbConnector;
+
     @Autowired
     public ClienteRepository(CouchDbConnector db) {
         super(Cliente.class, db);
@@ -37,5 +36,9 @@ public class ClienteRepository extends CouchDbRepositorySupport<Cliente> {
             clientes.add(cliente);
         }
         return clientes;
+    }
+    public List<Cliente> todosLosDocs(){
+        ViewQuery vw = new ViewQuery().allDocs();
+        return db.queryView(vw.designDocId("_design/Clientes").viewName("todos_clientes"),Cliente.class);
     }
 }

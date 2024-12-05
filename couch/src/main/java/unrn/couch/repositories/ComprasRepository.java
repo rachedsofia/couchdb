@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
+import unrn.couch.models.Cliente;
 import unrn.couch.models.Compras;
 
 import java.text.SimpleDateFormat;
@@ -26,7 +27,7 @@ public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
     public ComprasRepository(CouchDbConnector db) {
         super(Compras.class, db);
     }
-
+/*
     public List<Compras> obtenerComprasPorCliente(String idCliente) {
         ViewQuery query = new ViewQuery()
                 .designDocId("_design/Compras")
@@ -35,7 +36,7 @@ public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
                 .includeDocs(true);
 
         return db.queryView(query, Compras.class);
-    }
+    }*/
     public List<Compras> obtenerUsuariosMasComprasUltimoMes() throws JsonProcessingException {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MONTH, -1);
@@ -55,10 +56,7 @@ public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
         ViewResult result = db.queryView(query);
         List<Compras> compras = new ArrayList<>();
         for (ViewResult.Row row : result.getRows()) {
-            // Obtener el documento como JsonNode
             JsonNode jsonNode = row.getDocAsNode();
-
-            // Convertir el JsonNode a objeto Compras
             ObjectMapper mapper = new ObjectMapper();
             Compras compra = mapper.treeToValue(jsonNode, Compras.class);
 
@@ -75,21 +73,21 @@ public class ComprasRepository extends CouchDbRepositorySupport<Compras> {
                 .viewName("ultimas_compras")
                 .limit(3)
                 .includeDocs(true);
-
+        return db.queryView(query, Compras.class);
+        /*
         ViewResult result = db.queryView(query);
         List<Compras> compras = new ArrayList<>();
         for (ViewResult.Row row : result.getRows()) {
-            // Obtener el documento como JsonNode
             JsonNode jsonNode = row.getDocAsNode();
 
-            // Convertir el JsonNode a objeto Compras
             ObjectMapper mapper = new ObjectMapper();
             Compras compra = mapper.treeToValue(jsonNode, Compras.class);
 
             compras.add(compra);
         }
-        return compras;
+        return compras;*/
     }
+
 
 
 }

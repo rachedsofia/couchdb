@@ -60,6 +60,10 @@ public class ComprasController implements ComprasContract{
         return comprasService.obtenerUltimasCompras();
     }
 
+   @GetMapping("/losClientes")
+        public List<Cliente> todosClientes(){
+            return clienteService.clientes();
+    }
 
 public class ClienteRequest {
     private String idCliente;

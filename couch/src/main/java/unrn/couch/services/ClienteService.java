@@ -3,7 +3,6 @@ package unrn.couch.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import unrn.couch.models.Cliente;
 import unrn.couch.repositories.ClienteRepository;
 
@@ -30,6 +29,10 @@ public class ClienteService {
     public List<Cliente> obtenerClientes() throws JsonProcessingException {
             return clienteRepository.obtenerClientes();
     }
+    public List<Cliente> clientes()  {
+        return clienteRepository.todosLosDocs();
+    }
+
 }
 
 
